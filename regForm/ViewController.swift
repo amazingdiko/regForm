@@ -11,7 +11,6 @@ struct Person {
     var namePerson: String?
     var bornDate: String?
     var eMail: String?
-    var passWord: String?
     var sexPerson: String?
 }
 
@@ -74,7 +73,7 @@ class ViewController: UIViewController, UITextFieldDelegate {
        let scrollView = UIScrollView()
         scrollView.backgroundColor = .white
         scrollView.contentSize = contentSize
-        scrollView.frame = view.bounds
+//        scrollView.frame = view.bounds
         scrollView.translatesAutoresizingMaskIntoConstraints = false
         return scrollView
     }()
@@ -163,29 +162,29 @@ class ViewController: UIViewController, UITextFieldDelegate {
 //        print (sexType)
     }
 
-    lazy var sex: UISegmentedControl = {
+    lazy var sexType: UISegmentedControl = {
        let sex = UISegmentedControl(items: ["Male", "Female"])
         sex.translatesAutoresizingMaskIntoConstraints = false
         sex.addTarget(self, action: #selector(sexSelection(_:)), for: .allEvents)
         return sex
     }()
     
-    lazy var passText: UILabel = {
-       let passText = UILabel()
-        passText.text = "Enter ur password:"
-        passText.translatesAutoresizingMaskIntoConstraints = false
-        return passText
-    }()
-    
-    lazy var passWord: UITextField = {
-        let passWord = UITextField()
-        passWord.placeholder = "Six numbers"
-        passWord.keyboardType = .numberPad
-        passWord.isSecureTextEntry = true
-        passWord.borderStyle = UITextField.BorderStyle.roundedRect
-        passWord.translatesAutoresizingMaskIntoConstraints = false
-        return passWord
-    } ()
+//    lazy var passText: UILabel = {
+//       let passText = UILabel()
+//        passText.text = "Enter ur password:"
+//        passText.translatesAutoresizingMaskIntoConstraints = false
+//        return passText
+//    }()
+//
+//    lazy var passWord: UITextField = {
+//        let passWord = UITextField()
+//        passWord.placeholder = "Enter ur password"
+//        passWord.keyboardType = .numberPad
+//        passWord.isSecureTextEntry = true
+//        passWord.borderStyle = UITextField.BorderStyle.roundedRect
+//        passWord.translatesAutoresizingMaskIntoConstraints = false
+//        return passWord
+//    } ()
     
     lazy var registrationButton: UIButton = {
         let registrationButton = UIButton()
@@ -220,12 +219,13 @@ class ViewController: UIViewController, UITextFieldDelegate {
                     animateError(view: eMail)
                 }
             }
-                
-            if passWord.text?.isEmpty == true {
-                animateError(view: passWord)
-            } else {
-                person.passWord =  passWord.text
-            }
+        print (person)
+        let vc2 = PassViewController()
+        vc2.modalPresentationStyle = .fullScreen
+        if firstName.text?.isEmpty != true && bornDate.text?.isEmpty != true
+            && eMail.text?.isEmpty != true{
+            self.present(vc2, animated: true)
+        }
     }
     
     func textFieldShouldReturn(userText: UITextField!) -> Bool {
@@ -246,42 +246,24 @@ class ViewController: UIViewController, UITextFieldDelegate {
         view.layer.add(animation, forKey: "position")
     }
     
-    private func registerForKeyboardNotification(){
-        NotificationCenter.default.addObserver(self, selector: #selector(keyBoardWillShow), name: UIResponder.keyboardWillShowNotification, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(keyBoardWillHide), name: UIResponder.keyboardWillHideNotification, object: nil)
-    }
-    private func removeForKeyboardNotification(){
-        NotificationCenter.default.removeObserver(self, name: UIResponder.keyboardWillShowNotification, object: nil)
-        NotificationCenter.default.removeObserver(self, name: UIResponder.keyboardWillHideNotification, object: nil)
+    private func setupKeyboardHiding() {
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow), name: UIResponder.keyboardWillShowNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide), name: UIResponder.keyboardWillHideNotification, object: nil)
     }
 
-    @objc func keyBoardWillHide(){
-        scrollView.contentOffset = CGPoint.zero
-    }
-
-    @objc func keyBoardWillShow(_ notification: Notification){
-        let userInfo = notification.userInfo
-        let kbFrameSize = (userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as! NSValue).cgRectValue
-        scrollView.contentOffset = CGPoint(x: 0, y: kbFrameSize.height)
-    }
-    
-    deinit {
-        removeForKeyboardNotification()
-    }
-    
     private func setupView(){
         view.addSubview(scrollView)
-//        registerForKeyboardNotification()
         scrollView.addSubview(firstNameText)
         scrollView.addSubview(bornDate)
         scrollView.addSubview(dateText)
         scrollView.addSubview(firstName)
         scrollView.addSubview(eMailText)
         scrollView.addSubview(eMail)
-        scrollView.addSubview(passText)
-        scrollView.addSubview(sex)
-        scrollView.addSubview(passWord)
+//        scrollView.addSubview(passText)
+        scrollView.addSubview(sexType)
+//        scrollView.addSubview(passWord)
         scrollView.addSubview(registrationButton)
+        setupKeyboardHiding()
     }
     
     private func setupConstraintLabel() {
@@ -322,20 +304,20 @@ class ViewController: UIViewController, UITextFieldDelegate {
         constraints.append(eMail.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20))
         constraints.append(eMail.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20))
         
-        constraints.append(sex.topAnchor.constraint(equalTo: eMail.topAnchor, constant: 60))
+        constraints.append(sexType.topAnchor.constraint(equalTo: eMail.topAnchor, constant: 60))
 //        constraints.append(firstName.bottomAnchor.constraint(equalTo: view.bottomAnchor))
-        constraints.append(sex.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20))
-        constraints.append(sex.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20))
-//        
-        constraints.append(passText.topAnchor.constraint(equalTo: sex.topAnchor, constant: 60))
-//        constraints.append(firstName.bottomAnchor.constraint(equalTo: view.bottomAnchor))
-        constraints.append(passText.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20))
-        constraints.append(passText.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20))
-        
-        constraints.append(passWord.topAnchor.constraint(equalTo: passText.topAnchor, constant: 30))
-//        constraints.append(firstName.bottomAnchor.constraint(equalTo: view.bottomAnchor))
-        constraints.append(passWord.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20))
-        constraints.append(passWord.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20))
+        constraints.append(sexType.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20))
+        constraints.append(sexType.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20))
+////
+//        constraints.append(passText.topAnchor.constraint(equalTo: sex.topAnchor, constant: 60))
+////        constraints.append(firstName.bottomAnchor.constraint(equalTo: view.bottomAnchor))
+//        constraints.append(passText.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20))
+//        constraints.append(passText.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20))
+//
+//        constraints.append(passWord.topAnchor.constraint(equalTo: passText.topAnchor, constant: 30))
+////        constraints.append(firstName.bottomAnchor.constraint(equalTo: view.bottomAnchor))
+//        constraints.append(passWord.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20))
+//        constraints.append(passWord.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20))
         
 //        constraints.append(passWord.topAnchor.constraint(equalTo: passText.topAnchor, constant: 30))
         constraints.append(registrationButton.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -20))
@@ -352,7 +334,7 @@ class ViewController: UIViewController, UITextFieldDelegate {
         firstName.delegate = self
         eMail.delegate = self
         bornDate.delegate = self
-        passWord.delegate = self
+//        passWord.delegate = self
         setupView()
         setupConstraintLabel()
     }
@@ -363,3 +345,38 @@ class ViewController: UIViewController, UITextFieldDelegate {
         }
 }
 
+/// KEYBOARD
+
+extension ViewController {
+    @objc func keyboardWillShow(sender: NSNotification) {
+        guard let userInfo = sender.userInfo,
+              let keyboardFrame = userInfo[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue,
+              let currentTextField = UIResponder.currentFirst() as? UITextField else { return }
+        let keyboardTopY = keyboardFrame.cgRectValue.origin.y
+        let convertedTextFieldFrame = view.convert(currentTextField.frame, from: currentTextField.superview)
+        let textFieldBottomY = convertedTextFieldFrame.origin.y + convertedTextFieldFrame.size.height
+        if textFieldBottomY > keyboardTopY {
+            let textBoxY = convertedTextFieldFrame.origin.y
+            let newFrameY = (textBoxY - keyboardTopY / 2) * -1
+            view.frame.origin.y = newFrameY
+        }
+    }
+    @objc func keyboardWillHide(sender: NSNotification) {
+        view.frame.origin.y = 0
+    }
+}
+
+extension UIResponder {
+
+    private struct Static {
+        static weak var responder: UIResponder?
+    }
+    static func currentFirst() -> UIResponder? {
+        Static.responder = nil
+        UIApplication.shared.sendAction(#selector(UIResponder._trap), to: nil, from: nil, for: nil)
+        return Static.responder
+    }
+    @objc private func _trap() {
+        Static.responder = self
+    }
+}
